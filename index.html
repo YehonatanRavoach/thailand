@@ -1,0 +1,941 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>Thailand Premium</title>
+    <link rel="manifest" href="manifest.json">
+    <!-- IOS Icon Support -->
+    <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/3069/3069172.png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --primary: #0EA5E9; /* Ocean Blue */
+            --primary-dark: #0284C7;
+            --accent: #F59E0B; /* Golden Sand */
+            --bg: #F0F9FF; /* Light Aqua Tint */
+            --card-bg: #FFFFFF;
+            --text-main: #0F172A;
+            --text-sub: #64748B;
+            --success: #10B981;
+            --surface: #E0F2FE;
+            --ai-bubble: #E0F2FE;
+            --user-bubble: #0EA5E9;
+            --shadow: 0 4px 20px rgba(14, 165, 233, 0.08);
+            --radius: 20px;
+            --nav-height: 85px;
+            --safe-area-bottom: env(safe-area-inset-bottom, 20px);
+        }
+
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: var(--bg);
+            color: var(--text-main);
+            margin: 0;
+            padding: 0;
+            padding-bottom: calc(var(--nav-height) + 20px);
+            overflow-x: hidden;
+        }
+
+        /* --- Header & Hero --- */
+        .hero {
+            background: linear-gradient(135deg, #0EA5E9 0%, #38BDF8 100%);
+            padding: 60px 24px 30px;
+            border-radius: 0 0 32px 32px;
+            color: white;
+            box-shadow: 0 10px 40px rgba(14, 165, 233, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: -50%; left: -50%; width: 200%; height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 60%);
+            pointer-events: none;
+        }
+
+        .hero h1 { margin: 0; font-size: 28px; font-weight: 800; letter-spacing: -0.5px; }
+        .hero p { margin: 8px 0 0; opacity: 0.9; font-size: 15px; font-weight: 500; }
+        
+        .trip-status {
+            display: inline-flex;
+            align-items: center;
+            background: rgba(255,255,255,0.2);
+            padding: 6px 12px;
+            border-radius: 99px;
+            font-size: 13px;
+            font-weight: 600;
+            margin-top: 16px;
+            backdrop-filter: blur(4px);
+        }
+
+        /* --- Global Layout --- */
+        .container { padding: 24px; max-width: 600px; margin: 0 auto; }
+        
+        h2 { font-size: 20px; margin: 30px 0 16px; display: flex; align-items: center; gap: 8px; color: var(--text-main); }
+        h2 svg { width: 24px; height: 24px; color: var(--primary); }
+
+        /* --- Cards --- */
+        .card {
+            background: var(--card-bg);
+            border-radius: var(--radius);
+            padding: 20px;
+            margin-bottom: 16px;
+            box-shadow: var(--shadow);
+            border: 1px solid rgba(255,255,255,0.8);
+            position: relative;
+            transition: transform 0.2s ease;
+        }
+        .card:active { transform: scale(0.98); }
+
+        .card-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px; }
+        .card-title { font-weight: 700; font-size: 17px; color: var(--text-main); }
+        .card-subtitle { font-size: 13px; color: var(--text-sub); margin-top: 4px; }
+        
+        .badge { 
+            background: var(--surface); 
+            color: var(--primary-dark); 
+            font-size: 11px; 
+            font-weight: 700; 
+            padding: 6px 10px; 
+            border-radius: 8px; 
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .badge.shabbat { background: #FDF4FF; color: #D946EF; }
+        .badge.flight { background: #EFF6FF; color: #3B82F6; }
+        .badge.food { background: #ECFDF5; color: #059669; }
+
+        /* --- Itinerary specific --- */
+        .timeline-item {
+            display: flex;
+            gap: 16px;
+            margin-bottom: 16px;
+            position: relative;
+        }
+        .timeline-item:last-child { margin-bottom: 0; }
+        
+        .time-col {
+            min-width: 50px;
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-sub);
+            text-align: right;
+            padding-top: 2px;
+        }
+        
+        .event-col { flex: 1; }
+        .event-title { font-weight: 600; font-size: 15px; margin-bottom: 4px; }
+        .event-desc { font-size: 13px; color: var(--text-sub); line-height: 1.5; }
+        
+        .kosher-box {
+            background: #F0FDFA;
+            border: 1px solid #CCFBF1;
+            border-radius: 12px;
+            padding: 12px;
+            margin-top: 12px;
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+        }
+        .kosher-icon { font-size: 18px; }
+        .kosher-content div { font-weight: 600; font-size: 14px; color: #115E59; }
+        .kosher-content span { font-size: 12px; color: #134E4A; }
+
+        /* --- Map View --- */
+        #map-view { display: none; height: 100vh; width: 100%; position: fixed; top: 0; left: 0; z-index: 90; background: white; }
+        .map-frame { width: 100%; height: 100%; border: none; }
+        .close-map { 
+            position: absolute; bottom: 100px; right: 20px; 
+            background: var(--text-main); color: white; 
+            padding: 12px 24px; border-radius: 50px; 
+            font-weight: 600; box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+            z-index: 100;
+        }
+
+        /* --- AI View --- */
+        #ai-view { display: none; padding-bottom: 100px; }
+        .ai-header { padding: 24px; background: white; position: sticky; top:0; z-index: 10; border-bottom: 1px solid #eee; }
+        .chat-area { padding: 20px; display: flex; flex-direction: column; gap: 16px; min-height: 300px; }
+        .chat-bubble {
+            padding: 12px 16px;
+            border-radius: 16px;
+            font-size: 14px;
+            line-height: 1.5;
+            max-width: 85%;
+            position: relative;
+        }
+        .chat-bubble.ai { background: var(--ai-bubble); align-self: flex-start; border-bottom-left-radius: 4px; }
+        .chat-bubble.user { background: var(--user-bubble); color: white; align-self: flex-end; border-bottom-right-radius: 4px; }
+        .input-area {
+            position: fixed; bottom: calc(var(--nav-height) + 20px); left:0; width:100%;
+            background: white; padding: 12px; border-top: 1px solid #eee;
+            display: flex; gap: 8px;
+        }
+        .ai-input {
+            flex: 1; padding: 12px; border: 1px solid #ddd; border-radius: 24px;
+            font-family: inherit; font-size: 14px; outline: none;
+        }
+        .ai-btn {
+            background: var(--primary); color: white; border: none;
+            width: 44px; height: 44px; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            cursor: pointer;
+        }
+        .loading-dots:after {
+            content: '.'; animation: dots 1s steps(5, end) infinite;
+        }
+        @keyframes dots { 0%, 20% { content: '.'; } 40% { content: '..'; } 60% { content: '...'; } 80%, 100% { content: ''; } }
+
+        /* --- Bottom Navigation --- */
+        .nav-bar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: calc(var(--nav-height) + var(--safe-area-bottom));
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(12px);
+            border-top: 1px solid rgba(0,0,0,0.05);
+            display: flex;
+            justify-content: space-around;
+            align-items: flex-start;
+            padding-top: 12px;
+            z-index: 1000;
+            padding-bottom: var(--safe-area-bottom);
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 5px;
+            color: #94A3B8;
+            font-size: 11px;
+            font-weight: 500;
+            width: 60px;
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+
+        .nav-item svg { width: 24px; height: 24px; stroke-width: 2px; }
+        .nav-item.active { color: var(--primary); }
+        .nav-item.active svg { stroke-width: 2.5px; }
+
+        .sparkle-btn {
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+            color: white; border: none; padding: 8px 16px;
+            border-radius: 99px; font-weight: 600; font-size: 12px;
+            display: flex; align-items: center; gap: 6px;
+            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+            margin-top: 8px; cursor: pointer;
+        }
+        
+        /* --- Utilities --- */
+        .hidden { display: none !important; }
+        .price-tag { color: var(--text-main); font-weight: 700; font-size: 13px; }
+        
+        /* --- Action Button --- */
+        .btn-action {
+            display: inline-block;
+            background: var(--text-main);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-size: 13px;
+            text-decoration: none;
+            margin-top: 8px;
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- HOME VIEW -->
+    <div id="home-view">
+        <div class="hero">
+            <h1>Sawasdee, Traveler!</h1>
+            <p>Your premium kosher journey begins.</p>
+            <div class="trip-status">📍 Feb 8–26 • 19 Days</div>
+            <button class="sparkle-btn" onclick="showSection('ai')" style="margin-top: 16px; background: white; color: var(--primary);">
+                ✨ Ask AI Concierge
+            </button>
+        </div>
+
+        <div class="container">
+            
+            <!-- Quick Actions -->
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 24px;">
+                <div class="card" onclick="showSection('today')" style="margin:0; text-align:center; padding: 16px;">
+                    <div style="font-size: 24px; margin-bottom: 8px;">☀️</div>
+                    <div style="font-weight:700; font-size:14px;">Today's Plan</div>
+                </div>
+                <div class="card" onclick="openMap()" style="margin:0; text-align:center; padding: 16px;">
+                    <div style="font-size: 24px; margin-bottom: 8px;">🗺️</div>
+                    <div style="font-weight:700; font-size:14px;">Full Map</div>
+                </div>
+            </div>
+
+            <!-- Itinerary List -->
+            <h2>📅 Your Itinerary</h2>
+            <div id="itinerary-list"></div>
+        </div>
+    </div>
+
+    <!-- MAP VIEW -->
+    <div id="map-view">
+        <iframe id="google-map-iframe" class="map-frame" src=""></iframe>
+        <div class="close-map" onclick="closeMap()">Close Map</div>
+    </div>
+
+    <!-- AI CONCIERGE VIEW -->
+    <div id="ai-view">
+        <div class="ai-header">
+            <h2 style="margin:0">✨ Kosher Concierge</h2>
+            <p style="margin:4px 0 0; font-size:13px; color:var(--text-sub)">Ask about food, culture, or translate phrases.</p>
+        </div>
+        <div class="chat-area" id="chat-history">
+            <div class="chat-bubble ai">
+                Sawasdee khrup! 🙏 I'm your AI assistant for this trip. 
+                <br><br>
+                Try asking:
+                <br>• "How do I ask for no pork in Thai?"
+                <br>• "Is Pad Thai usually kosher?"
+                <br>• "What's the plan for Shabbat?"
+            </div>
+        </div>
+        <div class="input-area">
+            <input type="text" id="ai-input-field" class="ai-input" placeholder="Ask anything or translate..." onkeypress="handleEnter(event)">
+            <button class="ai-btn" onclick="sendToGemini()">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
+            </button>
+        </div>
+    </div>
+
+    <!-- BOTTOM NAV -->
+    <div class="nav-bar">
+        <div class="nav-item active" onclick="showSection('home')">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+            <span>Home</span>
+        </div>
+        <div class="nav-item" onclick="openMap()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"></polygon><line x1="8" y1="2" x2="8" y2="18"></line><line x1="16" y1="6" x2="16" y2="22"></line></svg>
+            <span>Map</span>
+        </div>
+        <div class="nav-item" onclick="showSection('ai')">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path></svg>
+            <span>Ask AI</span>
+        </div>
+        <div class="nav-item" onclick="showSection('today')">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+            <span>Today</span>
+        </div>
+    </div>
+
+    <script>
+        // --- GEMINI API CONFIG ---
+        const apiKey = "AIzaSyB1yhYZx6pPapX1aSIPOFNHzq0xDUqDqGU"; // Provided by runtime environment
+        
+        // --- DATA ---
+        const tripData = [
+            // --- KOH SAMUI ---
+            {
+                date: "Sun, Feb 8",
+                area: "Koh Samui",
+                title: "Arrival in Paradise",
+                hotel: "First Bungalow Beach Resort",
+                events: [
+                    { time: "14:50", title: "Land in Bangkok (BKK)", desc: "Clear customs, collect bags, head to domestic departures." },
+                    { time: "17:20", title: "Flight to Koh Samui", desc: "Bangkok Airways. PG167/171." },
+                    { time: "19:30", title: "Hotel Check-in", desc: "First Bungalow Beach Resort. Unpack and rest." }
+                ],
+                kosher: {
+                    lunch: "None (In transit)",
+                    dinner: "Japaniko Kosher Sushi (Light dinner after travel)",
+                    note: "Grab fruit/water at 7-Eleven near hotel for the room."
+                }
+            },
+            {
+                date: "Mon, Feb 9",
+                area: "Koh Samui",
+                title: "Beach & Viewpoints",
+                hotel: "First Bungalow Beach Resort",
+                events: [
+                    { time: "10:00", title: "Slow Morning", desc: "Coffee & fruit. Beach time at the hotel." },
+                    { time: "16:00", title: "Lad Koh Viewpoint", desc: "Beautiful ocean views. Great photo spot." },
+                    { time: "18:00", title: "Massage", desc: "First Thai massage of the trip." }
+                ],
+                kosher: {
+                    lunch: "Machane Yehuda (Israeli/Meat) - Takeaway to beach",
+                    dinner: "Machane Yehuda (Sit down)",
+                    note: "Famous for schnitzel and hummus."
+                }
+            },
+            {
+                date: "Tue, Feb 10",
+                area: "Koh Samui",
+                title: "North Beaches & Bophut",
+                hotel: "First Bungalow Beach Resort",
+                events: [
+                    { time: "10:00", title: "Bang Po Beach", desc: "Very calm, white sand." },
+                    { time: "14:00", title: "Ban Tai Beach", desc: "Another hidden gem." },
+                    { time: "17:00", title: "Fisherman’s Village", desc: "Walking street, boutique shops, nice vibe." }
+                ],
+                kosher: {
+                    lunch: "Baraka (Mediterranean)",
+                    dinner: "Baraka (In Fisherman's Village area)",
+                    note: "Try the shakshuka or grilled fish."
+                }
+            },
+            {
+                date: "Wed, Feb 11",
+                area: "Koh Samui",
+                title: "Ang Thong Marine Park",
+                hotel: "First Bungalow Beach Resort",
+                events: [
+                    { time: "08:00", title: "42 Islands Tour", desc: "Pickup for full day boat tour. Snorkeling & sightseeing." },
+                    { time: "17:00", title: "Return to Hotel", desc: "Shower and rest." }
+                ],
+                kosher: {
+                    lunch: "Packed Kosher Lunch (Pre-order from Chabad/Bakery26)",
+                    dinner: "Father Shimon (Meat & Grill)",
+                    note: "Hearty meat meal after a day of swimming."
+                }
+            },
+            {
+                date: "Thu, Feb 12",
+                area: "Koh Samui",
+                title: "Private Island Tour",
+                hotel: "First Bungalow Beach Resort",
+                events: [
+                    { time: "10:00", title: "Private Driver (Tony)", desc: "4-6 hours tailored tour." },
+                    { time: "13:00", title: "Coral Cove", desc: "Snorkeling stop." },
+                    { time: "15:00", title: "Jungle Club View", desc: "If time permits, great view for a drink." }
+                ],
+                kosher: {
+                    lunch: "HALATI / Hala Grill",
+                    dinner: "HALATI / Hala Grill",
+                    note: "Good grilled chicken and salads."
+                }
+            },
+            {
+                date: "Fri, Feb 13",
+                area: "Koh Samui",
+                title: "Shabbat Prep",
+                hotel: "First Bungalow Beach Resort",
+                events: [
+                    { time: "11:00", title: "Shopping", desc: "Buy water, snacks, tuna for Koh Phangan." },
+                    { time: "14:00", title: "Pre-Shabbat Relax", desc: "Stay close to hotel." },
+                    { time: "18:00", title: "Candle Lighting", desc: "Check local times." }
+                ],
+                kosher: {
+                    lunch: "Bakery26 (Light sandwiches/pastries)",
+                    dinner: "Chabad House (Shabbat Dinner)",
+                    note: "Reserve your spot at Chabad."
+                },
+                isShabbat: true
+            },
+            {
+                date: "Sat, Feb 14",
+                area: "Koh Samui",
+                title: "Shabbat Kodesh",
+                hotel: "First Bungalow Beach Resort",
+                events: [
+                    { time: "10:00", title: "Morning Services", desc: "Chabad House." },
+                    { time: "13:00", title: "Shabbat Lunch", desc: "Chabad House." },
+                    { time: "15:00", title: "Rest", desc: "Walk on the beach near hotel." }
+                ],
+                kosher: {
+                    lunch: "Chabad House",
+                    dinner: "Seudah Shlishit @ Chabad",
+                    note: "No electronics/travel."
+                },
+                isShabbat: true
+            },
+            
+            // --- KOH PHANGAN ---
+            {
+                date: "Sun, Feb 15",
+                area: "Koh Phangan",
+                title: "Ferry to Phangan",
+                hotel: "Sunset Hill Boutique Resort",
+                events: [
+                    { time: "10:00", title: "Ferry Departure", desc: "Lomprayah/Seatran to Koh Phangan (30-45 min)." },
+                    { time: "12:00", title: "Check-in", desc: "Sunset Hill Resort." },
+                    { time: "15:00", title: "Haad Yao / Haad Salad", desc: "Calm beach afternoon near hotel." }
+                ],
+                kosher: {
+                    lunch: "Bereshit Bakery (Sandwiches bought in Samui)",
+                    dinner: "Chabad Koh Phangan",
+                    note: "Chabad is the only main kosher spot here."
+                }
+            },
+            {
+                date: "Mon, Feb 16",
+                area: "Koh Phangan",
+                title: "Adventure & Views",
+                hotel: "Sunset Hill Boutique Resort",
+                events: [
+                    { time: "10:00", title: "ATV Tour", desc: "2.5 hours jungle/viewpoint ride." },
+                    { time: "14:00", title: "Mae Haad Beach", desc: "Walk the sandbar to Koh Ma." },
+                    { time: "18:00", title: "Sunset", desc: "West coast sunset view." }
+                ],
+                kosher: {
+                    lunch: "Packed fruit/snacks (or Chabad delivery if avail)",
+                    dinner: "Chabad Koh Phangan",
+                    note: "Hearty meat dinner after ATV."
+                }
+            },
+            {
+                date: "Tue, Feb 17",
+                area: "Koh Phangan",
+                title: "Koh Tao Day Trip",
+                hotel: "Sunset Hill Boutique Resort",
+                events: [
+                    { time: "08:30", title: "Ferry to Koh Tao", desc: "Snorkeling paradise." },
+                    { time: "10:00", title: "Snorkeling", desc: "Shark Bay or Freedom Beach." },
+                    { time: "15:00", title: "Return Ferry", desc: "Back to Phangan." }
+                ],
+                kosher: {
+                    lunch: "Bring tuna/crackers/fruit",
+                    dinner: "Chabad Koh Phangan",
+                    note: "Stock up on snacks for tomorrow's travel."
+                }
+            },
+            {
+                date: "Wed, Feb 18",
+                area: "Transit",
+                title: "Travel to Phuket",
+                hotel: "The Royal Paradise Hotel & Spa",
+                events: [
+                    { time: "12:00", title: "Ferry to Samui", desc: "Head back to USM Airport." },
+                    { time: "18:15", title: "Flight to Phuket", desc: "Bangkok Airways." },
+                    { time: "19:15", title: "Arrive Phuket", desc: "Taxi to Patong area." }
+                ],
+                kosher: {
+                    lunch: "Sandwiches (Prep in morning)",
+                    dinner: "Chabad Phuket (Late dinner)",
+                    note: "Chabad Phuket is a lively hub."
+                }
+            },
+
+            // --- PHUKET ---
+            {
+                date: "Thu, Feb 19",
+                area: "Phuket",
+                title: "Karon Beach Chill",
+                hotel: "The Royal Paradise Hotel",
+                events: [
+                    { time: "10:00", title: "Karon Beach", desc: "Less crowded than Patong. Rent a chair." },
+                    { time: "16:00", title: "Relax at Hotel", desc: "Pool time." }
+                ],
+                kosher: {
+                    lunch: "Babi’s Grill (Meat - Mehadrin)",
+                    dinner: "Babi’s Grill",
+                    note: "Excellent skewers and Israeli salads."
+                }
+            },
+            {
+                date: "Fri, Feb 20",
+                area: "Phuket",
+                title: "Old Town & Prep",
+                hotel: "The Royal Paradise Hotel",
+                events: [
+                    { time: "10:00", title: "Phuket Old Town", desc: "Sino-Portuguese architecture. Nice cafes." },
+                    { time: "14:00", title: "Shabbat Prep", desc: "Visit Makolet for snacks." }
+                ],
+                kosher: {
+                    lunch: "J Cafe (Dairy)",
+                    dinner: "Chabad Phuket (Shabbat Dinner)",
+                    note: "Enjoy a dairy lunch before the meat Shabbat meal."
+                },
+                isShabbat: true
+            },
+            {
+                date: "Sat, Feb 21",
+                area: "Phuket",
+                title: "Shabbat",
+                hotel: "The Royal Paradise Hotel",
+                events: [
+                    { time: "Day", title: "Shabbat Rest", desc: "Prayers and meals at Chabad." }
+                ],
+                kosher: {
+                    lunch: "Chabad Phuket",
+                    dinner: "Chabad Phuket",
+                    note: "Walking distance only."
+                },
+                isShabbat: true
+            },
+            {
+                date: "Sun, Feb 22",
+                area: "Phuket",
+                title: "Phi Phi Islands Premium",
+                hotel: "The Royal Paradise Hotel",
+                events: [
+                    { time: "08:45", title: "Pickup", desc: "Transfer to Royal Marina." },
+                    { time: "09:30", title: "Speed Catamaran", desc: "Less bumpy, max 30 pax." },
+                    { time: "11:00", title: "Maya Bay", desc: "The famous beach." },
+                    { time: "13:00", title: "Snorkeling", desc: "Clear waters." }
+                ],
+                kosher: {
+                    lunch: "Provided Fruit/Drinks + Packed Kosher (Bring your own)",
+                    dinner: "The Kosher Place (Meat)",
+                    note: "Tour price: 3,500 THB."
+                }
+            },
+            {
+                date: "Mon, Feb 23",
+                area: "Phuket",
+                title: "Jet Ski Safari",
+                hotel: "The Royal Paradise Hotel",
+                events: [
+                    { time: "08:30", title: "Jet Ski Tour", desc: "5 Hours exploring islands by Jet Ski." },
+                    { time: "14:00", title: "Return", desc: "Rest after active morning." }
+                ],
+                kosher: {
+                    lunch: "Makolet (Snacks/Light)",
+                    dinner: "Chabad Phuket",
+                    note: "Final dinner in Phuket."
+                }
+            },
+
+            // --- BANGKOK ---
+            {
+                date: "Tue, Feb 24",
+                area: "Bangkok",
+                title: "Temples & City",
+                hotel: "The Berkeley Hotel Pratunam",
+                events: [
+                    { time: "08:30", title: "Flight to Bangkok", desc: "Nok Air (Don Mueang)." },
+                    { time: "13:00", title: "Wat Arun", desc: "Temple of Dawn." },
+                    { time: "15:00", title: "Reclining Buddha", desc: "Wat Pho." }
+                ],
+                kosher: {
+                    lunch: "Chabad Bangkok (Khao San area - Meat)",
+                    dinner: "Chabad Bangkok",
+                    note: "Bakery is great for breakfast tomorrow."
+                }
+            },
+            {
+                date: "Wed, Feb 25",
+                area: "Bangkok",
+                title: "Shopping Day",
+                hotel: "The Berkeley Hotel Pratunam",
+                events: [
+                    { time: "10:00", title: "Central World", desc: "Huge mall near hotel." },
+                    { time: "14:00", title: "MBK Center", desc: "Gadgets and souvenirs." },
+                    { time: "19:00", title: "SkyWalk", desc: "Mahanakhon building views." }
+                ],
+                kosher: {
+                    lunch: "Chabad Bangkok",
+                    dinner: "Chabad Bangkok",
+                    note: "Buy snacks for flight home."
+                }
+            },
+            {
+                date: "Thu, Feb 26",
+                area: "Bangkok",
+                title: "Departure",
+                hotel: "The Berkeley Hotel Pratunam",
+                events: [
+                    { time: "12:00", title: "Checkout", desc: "Leave bags at bell desk." },
+                    { time: "20:00", title: "Airport Transfer", desc: "Head to BKK Suvarnabhumi." },
+                    { time: "23:55", title: "Flight Home", desc: "EL AL to Tel Aviv." }
+                ],
+                kosher: {
+                    lunch: "Chabad Bangkok",
+                    dinner: "Airport (Bring sandwiches)",
+                    note: "Safe travels!"
+                }
+            }
+        ];
+
+        // --- MAP URL BUILDER ---
+        function getMapUrl(location) {
+            return `https://www.google.com/maps?q=${encodeURIComponent(location)}&output=embed`;
+        }
+        
+        // --- RENDER FUNCTIONS ---
+        const listContainer = document.getElementById('itinerary-list');
+
+        function renderItinerary() {
+            listContainer.innerHTML = '';
+            
+            // Group by Area for headers
+            let currentArea = '';
+
+            tripData.forEach((day, index) => {
+                // Area Header
+                if (day.area !== currentArea) {
+                    currentArea = day.area;
+                    const areaHeader = document.createElement('div');
+                    areaHeader.innerHTML = `
+                        <div style="margin: 30px 0 10px; font-weight:800; font-size:22px; color:var(--primary-dark); letter-spacing:-0.5px;">
+                            📍 ${currentArea}
+                        </div>
+                    `;
+                    listContainer.appendChild(areaHeader);
+                }
+
+                const isToday = isDateToday(day.date);
+                const dayCard = document.createElement('div');
+                dayCard.className = 'card';
+                if (isToday) dayCard.style.border = '2px solid var(--primary)';
+                
+                let eventsHtml = day.events.map(e => `
+                    <div class="timeline-item">
+                        <div class="time-col">${e.time}</div>
+                        <div class="event-col">
+                            <div class="event-title">${e.title}</div>
+                            <div class="event-desc">${e.desc}</div>
+                        </div>
+                    </div>
+                `).join('');
+
+                let badges = '';
+                if (day.isShabbat) badges += `<span class="badge shabbat">🕯️ Shabbat</span> `;
+                if (day.events.some(e => e.title.includes('Flight'))) badges += `<span class="badge flight">✈️ Flight</span>`;
+
+                dayCard.innerHTML = `
+                    <div class="card-header">
+                        <div>
+                            <div style="font-size:14px; font-weight:600; color:var(--primary); text-transform:uppercase; letter-spacing:1px;">${day.date}</div>
+                            <div class="card-title">${day.title}</div>
+                            <div class="card-subtitle">🏨 ${day.hotel}</div>
+                        </div>
+                        <div>${badges}</div>
+                    </div>
+                    
+                    <div style="margin-top:16px;">
+                        ${eventsHtml}
+                    </div>
+
+                    <div class="kosher-box">
+                        <div class="kosher-icon">🍽️</div>
+                        <div class="kosher-content" style="width:100%">
+                            <div style="margin-bottom:4px;">Kosher Plan</div>
+                            <div style="display:grid; grid-template-columns: 40px 1fr; gap:4px; margin-bottom:4px;">
+                                <span>Lunch:</span> <span style="font-weight:600; color:#0F172A">${day.kosher.lunch}</span>
+                                <span>Dinner:</span> <span style="font-weight:600; color:#0F172A">${day.kosher.dinner}</span>
+                            </div>
+                            <div style="font-size:11px; color:#64748B; font-style:italic; border-top:1px solid rgba(0,0,0,0.05); padding-top:4px;">
+                                💡 ${day.kosher.note}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <a href="https://www.google.com/maps/search/${encodeURIComponent(day.hotel + ' ' + day.area)}" target="_blank" class="btn-action">Navigate to Hotel</a>
+                `;
+                
+                listContainer.appendChild(dayCard);
+            });
+        }
+
+        // --- NAVIGATION LOGIC ---
+        function showSection(sectionId) {
+            document.getElementById('home-view').classList.add('hidden');
+            document.getElementById('map-view').style.display = 'none';
+            document.getElementById('ai-view').style.display = 'none';
+            document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+
+            if (sectionId === 'today') {
+                document.getElementById('home-view').classList.remove('hidden');
+                document.querySelectorAll('.nav-item')[3].classList.add('active');
+                // Scroll logic placeholder
+            } else if (sectionId === 'home') {
+                document.getElementById('home-view').classList.remove('hidden');
+                document.querySelectorAll('.nav-item')[0].classList.add('active');
+            } else if (sectionId === 'ai') {
+                document.getElementById('ai-view').style.display = 'block';
+                document.querySelectorAll('.nav-item')[2].classList.add('active');
+            }
+        }
+
+        function openMap() {
+            document.getElementById('map-view').style.display = 'block';
+            document.getElementById('google-map-iframe').src = "https://www.google.com/maps/embed?pb=!1m16!1m12!1m3!1d1007428.6496464548!2d99.0!3d9.5!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!2m1!1sKosher%20Restaurant%20Thailand!5e0!3m2!1sen!2sth!4v1600000000000!5m2!1sen!2sth";
+            document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.nav-item')[1].classList.add('active');
+        }
+
+        function closeMap() {
+            document.getElementById('map-view').style.display = 'none';
+            showSection('home');
+        }
+
+        // --- AI LOGIC ---
+
+        function handleEnter(e) {
+            if (e.key === 'Enter') sendToGemini();
+        }
+
+        async function sendToGemini() {
+            const input = document.getElementById('ai-input-field');
+            const text = input.value.trim();
+            if (!text) return;
+
+            addBubble(text, 'user');
+            input.value = '';
+
+            const loadingBubble = addBubble('', 'ai', true);
+
+            try {
+                // 1. GENERATE TEXT
+                const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        contents: [{
+                            parts: [{ 
+                                text: `You are a helpful travel concierge for a kosher traveler in Thailand. 
+                                Keep answers short (max 2 sentences). 
+                                If asked to translate, provide the Thai script and phonetic pronunciation.
+                                Trip Context: Visiting Samui, Phangan, Phuket, Bangkok.
+                                User asks: ${text}` 
+                            }]
+                        }]
+                    })
+                });
+                
+                const data = await response.json();
+                const aiText = data.candidates?.[0]?.content?.parts?.[0]?.text || "Sorry, I couldn't connect.";
+                
+                loadingBubble.remove();
+                addBubble(aiText, 'ai');
+
+                // 2. CHECK IF TRANSLATION NEEDED (Simple heuristic)
+                if (text.toLowerCase().includes('say') || text.toLowerCase().includes('translate') || text.toLowerCase().includes('thai')) {
+                     // Attempt TTS on the AI response
+                     addTTSButton(aiText);
+                }
+
+            } catch (error) {
+                loadingBubble.remove();
+                addBubble("Offline mode: Can't reach AI.", 'ai');
+            }
+        }
+
+        function addBubble(text, type, isLoading = false) {
+            const history = document.getElementById('chat-history');
+            const bubble = document.createElement('div');
+            bubble.className = `chat-bubble ${type}`;
+            if (isLoading) {
+                bubble.classList.add('loading-dots');
+            } else {
+                bubble.innerHTML = text.replace(/\n/g, '<br>');
+            }
+            history.appendChild(bubble);
+            history.scrollTop = history.scrollHeight;
+            return bubble;
+        }
+
+        function addTTSButton(textToSpeak) {
+            const history = document.getElementById('chat-history');
+            const btn = document.createElement('button');
+            btn.className = 'sparkle-btn';
+            btn.style.marginTop = '-8px';
+            btn.style.marginLeft = '16px';
+            btn.style.marginBottom = '16px';
+            btn.innerHTML = '🔊 Play Thai Audio';
+            btn.onclick = () => playTTS(textToSpeak);
+            history.appendChild(btn);
+            history.scrollTop = history.scrollHeight;
+        }
+
+        async function playTTS(text) {
+             try {
+                // Clean text to just get Thai or English parts, for now send whole thing
+                // Gemini TTS is powerful enough to handle mixed text usually
+                const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-tts:generateContent?key=${apiKey}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        contents: [{ parts: [{ text: text }] }],
+                        generationConfig: {
+                            responseModalities: ["AUDIO"],
+                            speechConfig: { voiceConfig: { prebuiltVoiceConfig: { voiceName: "Aoede" } } }
+                        }
+                    })
+                });
+
+                const data = await response.json();
+                const audioData = data.candidates?.[0]?.content?.parts?.[0]?.inlineData?.data;
+
+                if (audioData) {
+                    const audioBytes = Uint8Array.from(atob(audioData), c => c.charCodeAt(0));
+                    const wavBytes = pcmToWav(audioBytes, 24000); // Gemini TTS is usually 24kHz
+                    const blob = new Blob([wavBytes], { type: 'audio/wav' });
+                    const url = URL.createObjectURL(blob);
+                    new Audio(url).play();
+                }
+
+            } catch (e) {
+                console.error(e);
+                alert("Could not play audio.");
+            }
+        }
+
+        // PCM to WAV helper (Standard Boilerplate)
+        function pcmToWav(pcmData, sampleRate) {
+            const headerLength = 44;
+            const wavData = new Uint8Array(headerLength + pcmData.length);
+            const view = new DataView(wavData.buffer);
+
+            // RIFF chunk descriptor
+            writeString(view, 0, 'RIFF');
+            view.setUint32(4, 36 + pcmData.length, true);
+            writeString(view, 8, 'WAVE');
+            // fmt sub-chunk
+            writeString(view, 12, 'fmt ');
+            view.setUint32(16, 16, true); // Subchunk1Size (16 for PCM)
+            view.setUint16(20, 1, true); // AudioFormat (1 for PCM)
+            view.setUint16(22, 1, true); // NumChannels (1 for Mono)
+            view.setUint32(24, sampleRate, true); // SampleRate
+            view.setUint32(28, sampleRate * 2, true); // ByteRate
+            view.setUint16(32, 2, true); // BlockAlign
+            view.setUint16(34, 16, true); // BitsPerSample
+            // data sub-chunk
+            writeString(view, 36, 'data');
+            view.setUint32(40, pcmData.length, true);
+
+            wavData.set(pcmData, 44);
+            return wavData;
+        }
+
+        function writeString(view, offset, string) {
+            for (let i = 0; i < string.length; i++) {
+                view.setUint8(offset + i, string.charCodeAt(i));
+            }
+        }
+
+        // --- UTILS ---
+        function isDateToday(dateStr) {
+            return false; 
+        }
+
+        function getTodayDateString() {
+            return "Feb 8"; 
+        }
+
+        // --- INIT ---
+        window.addEventListener('load', () => {
+            renderItinerary();
+            const isSupportedProtocol = window.location.protocol.startsWith('http');
+            if ('serviceWorker' in navigator && isSupportedProtocol) {
+                navigator.serviceWorker.register('./service-worker.js')
+                    .catch(err => console.log('Service Worker registration skipped/failed:', err));
+            }
+        });
+
+    </script>
+</body>
+</html>
